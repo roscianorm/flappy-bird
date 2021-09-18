@@ -10,6 +10,7 @@ body {
 h1 {
 	font: normal 700 36px / 1em 'Teko';
 	color: #fff;
+	user-select: none;
 }
 canvas {
 	background: #fff;
