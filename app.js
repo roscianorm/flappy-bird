@@ -60,7 +60,7 @@ cvs.addEventListener('click', function (event) {
 			let clickX = event.clientX - rect.left
 			let clickY = event.clientY - rect.top
 
-			// CHECK IF WE CLICK ON THE START BUTTON
+			// Check if we click on the start button
 			if (
 				clickX >= startBtn.x &&
 				clickX <= startBtn.x + startBtn.w &&
@@ -161,6 +161,7 @@ const bird = {
 		{ sX: 276, sY: 164 },
 		{ sX: 276, sY: 139 },
 	],
+
 	x: 50,
 	y: 150,
 	w: 34,
