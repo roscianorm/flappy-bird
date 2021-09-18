@@ -10,6 +10,22 @@ const degree = Math.PI / 180
 const sprite = new Image()
 sprite.src = './assets/img/sprite.png'
 
+// Load sounds
+const SCORE_S = new Audio()
+SCORE_S.src = './assets/audio/sfx_point.wav'
+
+const FLAP = new Audio()
+FLAP.src = './assets/audio/sfx_flap.wav'
+
+const HIT = new Audio()
+HIT.src = './assets/audio/sfx_hit.wav'
+
+const SWOOSHING = new Audio()
+SWOOSHING.src = './assets/audio/sfx_swooshing.wav'
+
+const DIE = new Audio()
+DIE.src = './assets/audio/sfx_die.wav'
+
 // Game state
 const state = {
 	current: 0,
@@ -18,20 +34,44 @@ const state = {
 	over: 2,
 }
 
+// Start button coordinates
+const startBtn = {
+	x: 120,
+	y: 263,
+	w: 83,
+	h: 29,
+}
+
 // Control the game
 cvs.addEventListener('click', function (event) {
 	switch (state.current) {
 		case state.getReady:
 			state.current = state.game
 			bird.flap()
+			SWOOSHING.play()
 			break
 		case state.game:
+			if (bird.y - bird.radius <= 0) return
 			bird.flap()
+			FLAP.play()
 			break
 		case state.over:
-			pipes.reset()
-			score.reset()
-			state.current = state.getReady
+			let rect = cvs.getBoundingClientRect()
+			let clickX = event.clientX - rect.left
+			let clickY = event.clientY - rect.top
+
+			// CHECK IF WE CLICK ON THE START BUTTON
+			if (
+				clickX >= startBtn.x &&
+				clickX <= startBtn.x + startBtn.w &&
+				clickY >= startBtn.y &&
+				clickY <= startBtn.y + startBtn.h
+			) {
+				pipes.reset()
+				bird.speedReset()
+				score.reset()
+				state.current = state.getReady
+			}
 			break
 	}
 })
@@ -175,6 +215,7 @@ const bird = {
 				this.y = cvs.height - fg.h - this.h / 2
 				if (state.current == state.game) {
 					state.current = state.over
+					DIE.play()
 				}
 			}
 
@@ -186,6 +227,9 @@ const bird = {
 				this.rotation = -25 * degree
 			}
 		}
+	},
+	speedReset: function () {
+		this.speed = 0
 	},
 }
 
@@ -313,6 +357,7 @@ const pipes = {
 				bird.y - bird.radius < p.y + this.h
 			) {
 				state.current = state.over
+				HIT.play()
 			}
 
 			// Bottom pipe
@@ -323,6 +368,7 @@ const pipes = {
 				bird.y - bird.radius < bottomPipeYPos + this.h
 			) {
 				state.current = state.over
+				HIT.play()
 			}
 
 			// Move the pipes to the left
@@ -331,7 +377,7 @@ const pipes = {
 			// If the pipes go beyond canvas, we delete them from the array
 			if (p.x + this.w <= 0) {
 				this.position.shift()
-
+				SCORE_S.play()
 				score.value += 1
 				score.best = Math.max(score.value, score.best)
 				localStorage.setItem('best', score.best)
